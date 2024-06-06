@@ -5,10 +5,10 @@ pipeline {
     agent any
 
     environment {
-        openshiftClusterURL  = 'https://api.ocp-training.ivolve-test.com:6443'
+        openshiftProject 	    = 'alyaabadr'
         K8S_NAMESPACE =        'alyaabadr'
         imageName   		   = 'alyaabadr/my-app'
-        OPENSHIFT_CREDENTIALS = 'openshift-jenkins-token'
+        openshiftClusterURL	    = 'https://api.ocp-training.ivolve-test.com:6443'
         dockerhub-credentials-id	    = 'DockerHub'
         openshiftCredentialsID =  'openshift-jenkins--token'
         APP_NAME = 'my-app'
@@ -32,29 +32,19 @@ pipeline {
             }
         }
         
-        stage('Update Kubernetes Deployment') {
-            steps {
-                script {
-                    updateK8sDeployment(env.DOCKER_IMAGE, env.DOCKER_TAG, 'k8s/deployment.yaml')
-                }
-            }
-        }
+      
         
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    deployToK8s(env.DEPLOYMENT_NAME, env.K8S_NAMESPACE)
+             steps {
+                script { 
+                	dir('openShift') {
+				deployOnOpenShift("${openshiftCredentialsID}", "${openshiftClusterURL}", "${openshiftProject}", "${imageName}")
+                    	}
                 }
             }
         }
         
-        stage('Deploy Kubernetes Service') {
-            steps {
-                script {
-                    deployK8sService(env.SERVICE_NAME, env.K8S_NAMESPACE)
-                }
-            }
-        }
+       
     }
 
     post {
