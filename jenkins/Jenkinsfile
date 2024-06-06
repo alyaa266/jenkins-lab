@@ -12,24 +12,14 @@ pipeline {
         dockerhub-credentials-id	    = 'DockerHub'
         openshiftCredentialsID =  'openshift-jenkins--token'
         APP_NAME = 'my-app'
-
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout code from GitHub
-                git '############'
-            }
-        }
-        
-        stage('Build Docker Image') {
+      
+      stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image
-                    docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").inside {
-                        sh 'echo "Docker image built"'
-                    }
+                    buildDockerImage(env.DOCKER_IMAGE, env.DOCKER_TAG)
                 }
             }
         }
@@ -37,10 +27,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push Docker image to Docker Hub
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
-                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
-                    }
+                    pushDockerImage(env.DOCKER_IMAGE, env.DOCKER_TAG, 'dockerhub-credentials-id')
                 }
             }
         }
@@ -48,15 +35,7 @@ pipeline {
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
-                    // Edit the deployment.yaml file with the new image
-                    sh """
-                    sed -i 's|image: .*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' k8s/deployment.yaml
-                    """
-
-                    // Apply the updated deployment to Kubernetes
-                    sh """
-                    kubectl apply -f k8s/deployment.yaml --namespace ${env.K8S_NAMESPACE}
-                    """
+                    updateK8sDeployment(env.DOCKER_IMAGE, env.DOCKER_TAG, 'k8s/deployment.yaml')
                 }
             }
         }
@@ -64,10 +43,15 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Ensure the deployment has been updated
-                    sh """
-                    kubectl rollout status deployment/${env.DEPLOYMENT_NAME} --namespace ${env.K8S_NAMESPACE}
-                    """
+                    deployToK8s(env.DEPLOYMENT_NAME, env.K8S_NAMESPACE)
+                }
+            }
+        }
+        
+        stage('Deploy Kubernetes Service') {
+            steps {
+                script {
+                    deployK8sService(env.SERVICE_NAME, env.K8S_NAMESPACE)
                 }
             }
         }
@@ -85,4 +69,5 @@ pipeline {
         }
     }
 }
+
 
