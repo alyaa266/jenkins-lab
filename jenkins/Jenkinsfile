@@ -28,7 +28,8 @@ pipeline {
         steps {
                 script {
                  	
-                 pushDockerImage("${dockerHubCredentialsID}", "${imageName}")
+                 dir('app') {
+                 		pushDockerImage("${dockerHubCredentialsID}", "${imageName}")
                       
                 }
             }
