@@ -34,8 +34,11 @@ pipeline {
 }
                     
 
-          
-                    pushDockerImage(env.DOCKER_IMAGE, env.DOCKER_TAG, 'dockerHubCredentialsID')
+           // Push the Docker image to the registry
+                    sh "docker push ${imageTag}"
+                    
+                    // Set the image tag as an environment variable for later use
+                    env.IMAGE_TAG = imageTag
                 }
             }
         }
