@@ -9,7 +9,7 @@ pipeline {
         K8S_NAMESPACE =        'alyaabadr'
         imageName   		   = 'alyaabadr/my-app'
         openshiftClusterURL	    = 'https://api.ocp-training.ivolve-test.com:6443'
-        dockerhub-credentials-id	    = 'DockerHub'
+        dockerHubCredentialsID	    = 'DockerHub'
         openshiftCredentialsID =  'openshift-jenkins--token'
         APP_NAME = 'my-app'
     }
@@ -27,7 +27,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    pushDockerImage(env.DOCKER_IMAGE, env.DOCKER_TAG, 'dockerhub-credentials-id')
+                    pushDockerImage(env.DOCKER_IMAGE, env.DOCKER_TAG, 'dockerHubCredentialsID')
                 }
             }
         }
