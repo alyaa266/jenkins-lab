@@ -25,20 +25,11 @@ pipeline {
         }
         
         stage('Push Docker Image') {
-            steps {
+        steps {
                 script {
-
-	  withCredentials([usernamePassword(credentialsId: "${dockerHubCredentialsID}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) 
- {
-		sh "docker login -u ${USERNAME} -p ${PASSWORD}"
-}
-                    
-
-           // Push the Docker image to the registry
-                    sh "docker push ${imageTag}"
-                    
-                    // Set the image tag as an environment variable for later use
-                    env.IMAGE_TAG = imageTag
+                 	
+                 pushDockerImage("${dockerHubCredentialsID}", "${imageName}")
+                      
                 }
             }
         }
